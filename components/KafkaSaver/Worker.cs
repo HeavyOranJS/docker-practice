@@ -1,4 +1,6 @@
 using Confluent.Kafka;
+using KafkaSaver.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace KafkaSaver
 {
@@ -23,7 +25,7 @@ namespace KafkaSaver
         {
             await Task.Yield();
 
-            using var consumer = new ConsumerBuilder<Ignore, string>(_consumerConfig).Build();
+            using var consumer = new ConsumerBuilder<string, string>(_consumerConfig).Build();
             consumer.Subscribe("topic-01");
 
             while (!stoppingToken.IsCancellationRequested)
@@ -35,7 +37,15 @@ namespace KafkaSaver
 
                     if (consumeResult != null)
                     {
+                        await using var context = new ApplicationDbContext();
                         _logger.LogInformation($"Received message: {consumeResult.Message.Value} at: {DateTimeOffset.Now}");
+                        var message = new MessageModel
+                        {
+                            Key = consumeResult.Message.Key,
+                            Message = consumeResult.Message.Value,
+                        };
+                        context.Messages.Add(message);
+                        await context.SaveChangesAsync(stoppingToken);
                     }
                 }
                 catch (ConsumeException e)
