@@ -15,7 +15,7 @@ namespace KafkaSaver
 
             _consumerConfig = new ConsumerConfig
             {
-                BootstrapServers = "localhost:9093", // Kafka broker address
+                BootstrapServers = "kafka:9092", // Kafka broker address
                 GroupId = "my-consumer-group", // Consumer group ID
                 AutoOffsetReset = AutoOffsetReset.Earliest // Start reading from the beginning if no offset is stored
             };

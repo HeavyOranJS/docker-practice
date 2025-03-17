@@ -1,4 +1,10 @@
 services:
+  kafka-saver:
+    build: ../components/KafkaSaver
+    depends_on:
+      - kafka
+      - postgres
+
   postgres:
     image: postgres:17
     container_name: postgres
